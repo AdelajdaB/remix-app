@@ -5,6 +5,8 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import { Link } from 'react-router-dom';
+
 import "./tailwind.css";
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -17,6 +19,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
+        <Navigation />
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -27,4 +30,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return <Outlet />;
+}
+
+function Navigation() {
+  return(
+    <>
+      <nav className="px-10 pt-5">
+        <Link to="/" className="text-2xl font-semibold">
+          Move <span className="text-teal-500">DB</span>
+        </Link>
+      </nav>
+    </>
+  )
 }

@@ -1,4 +1,5 @@
-import type { MetaFunction } from "@remix-run/node";
+import { json, type LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -7,42 +8,65 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export async function loader({}: LoaderFunctionArgs) {
+
+  const url = await fetch(
+    'https://api.themoviedb.org/3/trending/movie/day?language=en-US',
+    {
+      headers: {
+        accept: 'application/json',
+        Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjZDhiYTc5NDYzNjZhMmQ0ZDk2YWM0ZTAyZjg5MTU4ZCIsIm5iZiI6MTcyNTQ3MTMwMS41MzMzODgsInN1YiI6IjY2ZDg5OGY2OTA4NmNjMjc3ZjI2ZjFlNCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.rAghOJOHRMdnwd_1bltUGKua-N7mGoGYSgOmju4XyhU'
+      }
+    }
+  )
+
+  return json(await url.json())
+}
+
 export default function Index() {
+  const data = useLoaderData()
+
   return (
-    <div className="font-sans p-4">
-      <h1 className="text-3xl">Welcome to Remix</h1>
-      <ul className="list-disc mt-4 pl-6 space-y-2">
-        <li>
-          <a
-            className="text-blue-700 underline visited:text-purple-900"
-            target="_blank"
-            href="https://remix.run/start/quickstart"
-            rel="noreferrer"
-          >
-            5m Quick Start
-          </a>
-        </li>
-        <li>
-          <a
-            className="text-blue-700 underline visited:text-purple-900"
-            target="_blank"
-            href="https://remix.run/start/tutorial"
-            rel="noreferrer"
-          >
-            30m Tutorial
-          </a>
-        </li>
-        <li>
-          <a
-            className="text-blue-700 underline visited:text-purple-900"
-            target="_blank"
-            href="https://remix.run/docs"
-            rel="noreferrer"
-          >
-            Remix Docs
-          </a>
-        </li>
-      </ul>
+    <div className="bg-white py-6 sm:py-8 lg:py-12">
+      <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
+        <div className="mb-10 md:mb-16">
+          <h2 className="mb-4 text-center text-2xl font-bold text-gray-800 md:mb-6 lg:text-3xl">
+            Top Trending Movies
+          </h2>
+
+          <div className="grid gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3 xl:grid-cols-4 xl:gap-8">
+            {data.results.map((movie: any) => (
+              <div key={movie.id} className="flex flex-col overflow-hidden rounded-lg border bg-white">
+                <Link prefetch="intent" 
+                      to={`movie/${movie.id}/comments`}
+                      className="group relative block h-48 overflow-hidden bg-gray-100 md:h-64"
+                >
+                  <img 
+                    src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`} 
+                    alt="" 
+                    className="absolut inset-0 h-full w-full object-cover object-center transition duration-200 group-hover:scale-110"
+                    />
+                </Link>
+                
+                <div className="flex flex-1 flex-col p-4 sm:p-6">
+                  <h2 className="mb-2 text-lg font-semibold text-gray-800">
+                    <Link prefetch="intent" 
+                          to={`movie/${movie.id}/comments`}
+                          className="transition duration-100 hover:text-indigo-500 active:text-indigo-600"
+                    >
+                      {movie.title}
+                    </Link>
+                  </h2>
+
+                  <p className="text-gray-500 line-clamp-3">
+                    {movie.overview}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
